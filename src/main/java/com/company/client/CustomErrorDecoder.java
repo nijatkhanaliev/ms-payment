@@ -1,7 +1,7 @@
 package com.company.client;
 
 import com.company.exception.NotFoundException;
-import com.company.model.dto.ExceptionResponse;
+import com.company.common.ExceptionResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.Response;
 import feign.codec.ErrorDecoder;

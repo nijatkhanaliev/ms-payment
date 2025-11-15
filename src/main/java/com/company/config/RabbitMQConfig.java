@@ -11,51 +11,52 @@ import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import static com.company.model.constant.RabbitConstant.PAYMENT_EXCHANGE;
+import static com.company.model.constant.RabbitConstant.PAYMENT_QUEUE;
+import static com.company.model.constant.RabbitConstant.PAYMENT_ROUTING_KEY;
+
 @Configuration
 public class RabbitMQConfig {
 
-    public static final String STOCK_UPDATED_QUEUE = "stock-updated-queue";
-    public static final String ORDER_CREATED_EXCHANGE = "order-exchange";
-    public static final String STOCK_UPDATED_ROUTING_KEY = "stock.updated";
-    public static final String PAYMENT_SUCCESS_ROUTING_KEY = "payment.success";
-    public static final String PAYMENT_FAILED_ROUTING_KEY = "payment.failed";
+    public static final String X_DEAD_LETTER_EXCHANGE = "x-dead-letter-exchange";
+    public static final String X_DEAD_LETTER_ROUTING_KEY = "x-dead-letter-routing-key";
 
     @Bean
-    public Queue stockUpdatedQueue() {
-        return QueueBuilder.durable(STOCK_UPDATED_QUEUE)
-                .withArgument("x-dead-letter-exchange", ORDER_CREATED_EXCHANGE + ".dlx")
-                .withArgument("x-dead-letter-routing-key", STOCK_UPDATED_ROUTING_KEY + ".dlq")
+    public Queue paymentQueue() {
+        return QueueBuilder.durable(PAYMENT_QUEUE)
+                .withArgument(X_DEAD_LETTER_EXCHANGE, PAYMENT_EXCHANGE + ".dlx")
+                .withArgument(X_DEAD_LETTER_ROUTING_KEY, PAYMENT_ROUTING_KEY + ".dlq")
                 .build();
     }
 
     @Bean
-    public Queue stockUpdatedQueueDLQ() {
-        return QueueBuilder.durable(STOCK_UPDATED_QUEUE + ".dlq")
+    public Queue paymentQueueDLQ() {
+        return QueueBuilder.durable(PAYMENT_QUEUE + ".dlq")
                 .build();
     }
 
     @Bean
-    public TopicExchange stockUpdatedExchange(){
-        return new TopicExchange(ORDER_CREATED_EXCHANGE);
+    public TopicExchange paymentExchange(){
+        return new TopicExchange(PAYMENT_EXCHANGE);
     }
 
     @Bean
     public TopicExchange deadLetterExchange(){
-        return new TopicExchange(ORDER_CREATED_EXCHANGE + ".dlx");
+        return new TopicExchange(PAYMENT_EXCHANGE + ".dlx");
     }
 
     @Bean
-    public Binding bindingStockUpdated(Queue stockUpdatedQueue, TopicExchange stockUpdatedExchange){
-        return BindingBuilder.bind(stockUpdatedQueue)
-                .to(stockUpdatedExchange)
-                .with(STOCK_UPDATED_ROUTING_KEY);
+    public Binding bindingPaymentQueue(Queue paymentQueue, TopicExchange paymentExchange){
+        return BindingBuilder.bind(paymentQueue)
+                .to(paymentExchange)
+                .with(PAYMENT_ROUTING_KEY);
     }
 
     @Bean
-    public Binding bindingStockUpdatedDLQ(Queue stockUpdatedQueueDLQ, TopicExchange deadLetterExchange){
-        return BindingBuilder.bind(stockUpdatedQueueDLQ)
+    public Binding bindingStockUpdatedDLQ(Queue paymentQueueDLQ, TopicExchange deadLetterExchange){
+        return BindingBuilder.bind(paymentQueueDLQ)
                 .to(deadLetterExchange)
-                .with(STOCK_UPDATED_ROUTING_KEY + ".dlq");
+                .with(PAYMENT_ROUTING_KEY + ".dlq");
     }
 
     @Bean
