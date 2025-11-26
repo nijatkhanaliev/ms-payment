@@ -1,6 +1,7 @@
 package com.company.common;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,6 +13,7 @@ import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 public class ExceptionResponse {
     @JsonFormat(shape = STRING, pattern = "dd/MM/yyyy HH-mm-ss")
